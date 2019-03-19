@@ -88,16 +88,26 @@ def get_prod_info(s):
         print("Product Subfunction extraction error: " + str(e))
         info.append("na")
 
+    all_varjproductdata = ""
     temp_list = [{'weightMet': 'na', 'widthMet': 'na', 'quantity': 'na', 'lengthMet': 'na', 'heightMet': 'na'}]
     try:
         js = s.find_all("script", {"type": "text/javascript", "language":"JavaScript"})
         for j in js:
             for x in j.contents:
                 if "var jProductData" in str(x):
+                    all_varjproductdata = str(x[x.index('{"product\":'):x.index('var jsonProduct')]).strip()
                     j_product_data = x[x.index("pkgInfo\":")+len("pkgInfo\":"):x.index("}]}]")] + "}]"
                     temp_list = eval(j_product_data)
     except Exception as e:
         print("Product Data extraction error: " + str(e))
+
+    # write the line containing “var jProductData” into a single file (jproductdata.csv), one per line
+    # first column is article number, second column is jproductdata
+    #### WRITE TO CSV
+    # all_varjproductdata_list = [info[1], all_varjproductdata]
+    # with open("jproductdata.csv", "a") as fp:
+    #     wr = csv.writer(fp)
+    #     wr.writerow(all_varjproductdata_list)
 
     # num_of_packages = temp_list[0]['quantity']
     try:
@@ -141,22 +151,21 @@ def get_prod_info(s):
 
 
     # pdf link (download to a folder)
-    # TODO: FIX manual extraction
     try:
         url_base = "https://www.ikea.com"
-        url_product_manual = s.find("div", {"id": "attachmentList"}).find_all('a')[1]['href']
-        
+        url_product_manual = s.find("div", {"id": "attachmentList"}).find_all('a')[0]['href']
+
         url_pdf = url_product_manual[14:-4].replace("/", "")
         product_manual = url_base + url_product_manual
         response = requests.get(product_manual)
         pdf_name = url_pdf + '.pdf'
-        with open('manuals/' + pdf_name, 'wb') as f:
-            f.write(response.content)
+        #### DOWNLOAD
+        # with open('assembly/' + pdf_name, 'wb') as f:
+        #     f.write(response.content)
         info.append(pdf_name)
-        print ("product manual saved to " + pdf_name)
+        print ("product assembly instructions saved to " + pdf_name)
     except Exception as e:
-        print("Product Manual extraction error: " + str(e))
-        print("no manual saved")
+        print("Product assembly instructions extraction error: " + str(e))
 
     print (info)
     print("---------------- END ----------------")
@@ -221,8 +230,7 @@ if __name__ == '__main__':
     #         print("SKIPPED")
 
     """ Finally, download product information to csv """
-    # NB: can have multiple products for the same manual
-    all_prods = [["Product Name", "Article Number", "Product Description", "Designer", "Number of Ratings", "Overall Rating", "Product Department", "Product Subfunction", "Number of Packages", "Package Width", "Package Height", "Package Length", "Package Weight", "Product Manual"]]
+    all_prods = [["Product Name", "Article Number", "Product Description", "Designer", "Number of Ratings", "Overall Rating", "Product Department", "Product Subfunction", "Number of Packages", "Package Width", "Package Height", "Package Length", "Package Weight", "Assembly Instructions"]]
     for i in range(1, 8051):
         product_file = 'prods/p' + str(i) + '.html'
         print ()
