@@ -1,15 +1,27 @@
 from bs4 import BeautifulSoup
+from selenium import webdriver
 
-product_file = 'test_prod.html'
-with open(product_file) as fp:
-    soup = BeautifulSoup(fp, features='lxml')
-    all_varjproductdata = []
-    js = soup.find_all("script", {"type": "text/javascript", "language":"JavaScript"})
-    for j in js:
-        for x in j.contents:
-            if "var jProductData" in str(x):
-                j_product_data = x[x.index('{"product\":'):x.index('var jsonProduct')]
-                print (str(j_product_data).strip())
+
+browser = webdriver.Firefox() #replace with .Firefox(), or with the browser of your choice
+url = "https://www.ikea.com/us/en/catalog/products/80155205/"
+browser.get(url) #navigate to the page
+innerHTML = browser.execute_script("return document.body.innerHTML") #returns the inner HTML as a string
+print (innerHTML)
+
+
+
+
+
+# product_file = 'test_prod.html'
+# with open(product_file) as fp:
+#     soup = BeautifulSoup(fp, features='lxml')
+#     all_varjproductdata = []
+#     js = soup.find_all("script", {"type": "text/javascript", "language":"JavaScript"})
+#     for j in js:
+#         for x in j.contents:
+#             if "var jProductData" in str(x):
+#                 j_product_data = x[x.index('{"product\":'):x.index('var jsonProduct')]
+#                 print (str(j_product_data).strip())
 
 
 
