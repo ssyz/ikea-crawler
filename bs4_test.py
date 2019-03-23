@@ -159,11 +159,11 @@ def get_prod_info(s):
         product_manual = url_base + url_product_manual
         response = requests.get(product_manual)
         pdf_name = url_pdf + '.pdf'
+        info.append(pdf_name)
         #### DOWNLOAD
         # with open('assembly/' + pdf_name, 'wb') as f:
         #     f.write(response.content)
-        info.append(pdf_name)
-        print ("product assembly instructions saved to " + pdf_name)
+        # print ("product assembly instructions saved to " + pdf_name)
     except Exception as e:
         print("Product assembly instructions extraction error: " + str(e))
 
@@ -238,4 +238,11 @@ if __name__ == '__main__':
         with open(product_file) as fp:
             soup = BeautifulSoup(fp, features='lxml')
             soup_res = get_prod_info(soup)
-            # TODO: write results to CSV
+            all_prods.append(soup_res)
+
+    # write results to CSV
+    file_w = open('results.csv', 'w', newline='')
+    file_writer = csv.writer(file_w)
+    for entry in all_prods:
+        file_writer.writerow(entry)
+    file_w.close()
